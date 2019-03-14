@@ -1,19 +1,42 @@
 <template>
-  <SearchBar @termChange="onTermChange"></SearchBar>
+  <div>
+    <SearchBar @termChange="onTermChange"></SearchBar>
+    <VideoList :videos="videos"></VideoList>
+  </div>
 </template>
 
 <script>
+import axios from "axios";
 import SearchBar from "./components/SearchBar";
+import VideoList from "./components/VideoList";
 const API_KEY = "AIzaSyB7mh38OG-N1N8120WHrqoNkvmTcsNBfys";
+const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/search";
 
 export default {
   name: "App",
   components: {
-    SearchBar
+    SearchBar,
+    VideoList
+  },
+  data() {
+    return {
+      videos: []
+    };
   },
   methods: {
     onTermChange(searchTerm) {
-      console.log(searchTerm);
+      axios
+        .get(YOUTUBE_API_URL, {
+          params: {
+            key: API_KEY,
+            type: "video",
+            part: "snippet",
+            q: searchTerm
+          }
+        })
+        .then(response => {
+          this.videos = response.data.items;
+        });
     }
   }
 };
